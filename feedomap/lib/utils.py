@@ -19,7 +19,8 @@ def craft_message(username, feed, entry):
     msg['From'] = 'shalala@example.com'
     msg['To'] = username
     msg['Date'] = entry.published
-    hheader = '<table border="1" width="100%" cellpadding="0" ' + \
+    try:
+        hheader = '<table border="1" width="100%" cellpadding="0" ' + \
             'cellspacing="0" borderspacing="0"><tr><td>' + \
             '<table width="100%" bgcolor="#EDEDED" cellpadding="4" ' + \
             'cellspacing="2"><tr><td align="right"><b>Feed:</b></td> ' + \
@@ -28,6 +29,9 @@ def craft_message(username, feed, entry):
             '<td align="right"><b>Item:</b></td><td width="100%">' + \
             '<a href="' + entry.link + '"><b>' + entry.title + '</b>' + \
             '</a></td></tr></table></td></tr></table><br/>'
+    except:
+        import pdb
+        pdb.set_trace()
     hfooter = '<hr width="100%"/><table width="100%" cellpadding="0" ' + \
         'cellspacing="0"><tr><td align="right"><font color="#ababab">' + \
         'Date:</font>&nbsp</td><td><font color="#ababab">' + \
