@@ -25,7 +25,8 @@ class IMAPConnection(object):
     
     def store_entry(self, feed, entry, folder):
         parsed_date = time.mktime(entry.published_parsed)
-        msg = craft_message(self.username, feed, entry)
+        msg = craft_message(self.username, feed.contents['feed'], entry, 
+                            feed.sender)
         self.connection.create(folder)
         self.connection.append(folder, '', 
                                #imaplib.Time2Internaldate(parsed_date),

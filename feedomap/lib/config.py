@@ -22,6 +22,7 @@ class Config(object):
         self.cp['DEFAULT']['username'] = 'john@example.com'
         self.cp['DEFAULT']['password'] = 'secretpassword'
         self.cp['DEFAULT']['folder'] = 'INBOX.Feeds'
+        self.cp['DEFAULT']['sender'] = 'feeds@example.com'
         self.cp['Example Feed'] = OrderedDict()
         self.cp['Example Feed']['url'] = 'http://example2.com/rss.xml'
         with open(CONFIG_FILE, 'w') as configfile:

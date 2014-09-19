@@ -7,16 +7,20 @@ def striphtml(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
 
-def craft_message(username, feed, entry):
+def craft_message(username, feed, entry, sender):
     # Might wanna get into timezones later:
     #pd = entry.published_parsed
     #parsed_date = datetime.datetime(year=pd.tm_year, month=pd.tm_mon, 
     #                                day=pd.tm_mday, hour=pd.tm_hour, 
     #                                minute=pd.tm_min, second=pd.tm_sec)
     parsed_date = time.mktime(entry.published_parsed)
+    try:
+        body = entry[0]['content']['value']
+    except KeyError:
+        body = entry['summary']
     msg = MIMEMultipart('alternative')
     msg['Subject'] = entry.title
-    msg['From'] = 'shalala@example.com'
+    msg['From'] = sender
     msg['To'] = username
     msg['Date'] = entry.published
     try:
@@ -36,7 +40,7 @@ def craft_message(username, feed, entry):
         'cellspacing="0"><tr><td align="right"><font color="#ababab">' + \
         'Date:</font>&nbsp</td><td><font color="#ababab">' + \
         entry.published + '</font></td></tr></table>'
-    html = hheader + entry.summary + hfooter
+    html = hheader + body + hfooter
     theader = '<' + entry.link + '><br/><br/>'
     tfooter = '[A]<br/><br/>[A] ' + entry.link + '<br/>--<br/>Feed: ' + feed.title + \
             '<' + feed.link + '><br/>Item: ' + entry.title + '<br/><' + \
