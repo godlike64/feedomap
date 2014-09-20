@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+import sys
+import os
+
+sys.path.insert(1, os.getcwd())
 
 from feedomap.lib.main import run
 

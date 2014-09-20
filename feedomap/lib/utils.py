@@ -7,13 +7,7 @@ def striphtml(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
 
-def craft_message(username, feed, entry, sender):
-    # Might wanna get into timezones later:
-    #pd = entry.published_parsed
-    #parsed_date = datetime.datetime(year=pd.tm_year, month=pd.tm_mon, 
-    #                                day=pd.tm_mday, hour=pd.tm_hour, 
-    #                                minute=pd.tm_min, second=pd.tm_sec)
-    parsed_date = time.mktime(entry.published_parsed)
+def craft_message(username, feed, entry, sender, parsed_date):
     try:
         body = entry['content'][0]['value']
     except KeyError:
@@ -22,7 +16,10 @@ def craft_message(username, feed, entry, sender):
     msg['Subject'] = entry.title
     msg['From'] = sender
     msg['To'] = username
-    msg['Date'] = entry.published
+    try:
+        msg['Date'] = time.asctime(entry.published_parsed)
+    except AttributeError:
+        msg['Date'] = time.asctime(entry.updated_parsed)
     hheader = '<table border="1" width="100%" cellpadding="0" ' + \
             'cellspacing="0" borderspacing="0"><tr><td>' + \
             '<table width="100%" bgcolor="#EDEDED" cellpadding="4" ' + \
@@ -35,12 +32,12 @@ def craft_message(username, feed, entry, sender):
     hfooter = '<hr width="100%"/><table width="100%" cellpadding="0" ' + \
         'cellspacing="0"><tr><td align="right"><font color="#ababab">' + \
         'Date:</font>&nbsp</td><td><font color="#ababab">' + \
-        entry.published + '</font></td></tr></table>'
+        msg['Date'] + '</font></td></tr></table>'
     html = hheader + body + hfooter
     theader = '<' + entry.link + '><br/><br/>'
     tfooter = '[A]<br/><br/>[A] ' + entry.link + '<br/>--<br/>Feed: ' + feed.title + \
             '<' + feed.link + '><br/>Item: ' + entry.title + '<br/><' + \
-            entry.link + '><br/>Date: ' + entry.published
+            entry.link + '><br/>Date: ' + msg['Date']
     text = theader + striphtml(html) + tfooter
     
     #Don't specify the charset until we know what we're doing
