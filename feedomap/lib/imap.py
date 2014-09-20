@@ -1,5 +1,6 @@
 import imaplib
 import time
+import logging
 import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -13,6 +14,7 @@ class IMAPConnection(object):
         self.username = username
         self.password = password
         self.port = port
+        self.logger = logging.getLogger(__name__)
     
     def connect(self):
         if self.port == 993:
@@ -22,6 +24,8 @@ class IMAPConnection(object):
             if self.port == 143:
                 connection.starttls()
         connection.login(self.username, self.password)
+        self.logger.debug('Connected to ' + self.host + ' as ' + 
+                          self.username + '.')
         return connection
     
     def store_entry(self, feed, entry):
@@ -33,9 +37,12 @@ class IMAPConnection(object):
         msg = craft_message(self.username, feed.contents['feed'], entry, 
                             feed.sender, parsed_date)
         connection.create('\"' + feed.folder + '\"')
+        connection.subscribe('\"' + feed.folder + '\"')
         connection.select('\"' + feed.folder + '\"')
         connection.append('\"' + feed.folder + '\"', '', 
                             #imaplib.Time2Internaldate(parsed_date),
                             parsed_date,
                             str.encode(str(msg), 'utf-8'))
+        self.logger.debug('Stored entry "' + entry.title + '" at <' + 
+                     self.username + '> in ' + feed.folder + '.')
         connection.close()

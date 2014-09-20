@@ -24,6 +24,7 @@ class Config(object):
         self.cp['DEFAULT']['folder'] = 'INBOX.Feeds'
         self.cp['DEFAULT']['sender'] = 'feeds@example.com'
         self.cp['DEFAULT']['use_feed_name_as_folder'] = 'no'
+        self.cp['DEFAULT']['use_feed_folder_as_sender'] = 'no'
         self.cp['Example Feed'] = OrderedDict()
         self.cp['Example Feed']['url'] = 'http://example2.com/rss.xml'
         with open(CONFIG_FILE, 'w') as configfile:
@@ -44,3 +45,16 @@ class Config(object):
     def parse_config(self):
         self.cp = configparser.ConfigParser(dict_type=OrderedDict)
         self.cp.read(CONFIG_FILE)
+        for section in self.cp.sections():
+            try:
+                bytes(section, 'ASCII')
+            except UnicodeEncodeError:
+                if self.cp['DEFAULT']['use_feed_name_as_folder'] == 'yes':
+                    print('Folder names cannot use non-ASCII characters.')
+                    sys.exit(1)
+            try:
+                bytes(self.cp[section]['folder'], 'ASCII')
+            except UnicodeEncodeError:
+                if self.cp['DEFAULT']['use_feed_name_as_folder'] == 'no':
+                    print('Folder names cannot use non-ASCII characters.')
+                    sys.exit(1)

@@ -2,11 +2,16 @@ from feedomap.lib.config import Config
 from feedomap.lib.feed import Feed
 from feedomap.lib.imap import IMAPConnection
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
 
 
 from feedomap.lib import CONFIG
+from feedomap.lib.constants import PROGNAME, VERSION
 
-def run():
+def run(log_level):
+    logging.basicConfig(level=log_level)
+    logger = logging.getLogger(__name__)
+    print(PROGNAME + ' v' + VERSION + ' started.')
     feeds = []
     for feeditem in CONFIG.cp.sections():
         feed = Feed(feeditem)
@@ -30,6 +35,7 @@ def run():
     #    pass
     
     for feed in feeds:
+        logger.info('Storing ' + str(len(feed.contents['entries'])) + ' items' +
+                    ' from ' + feed.name + ' on ' + feed.imap.host + '.')
         for entry in feed.contents['entries']:
             feed.imap.store_entry(feed, entry)
-        feed.new_to_cache()
