@@ -9,18 +9,20 @@ from feedomap.lib import CONFIG
 def run():
     feeds = []
     for feeditem in CONFIG.cp.sections():
-        feed = Feed(feeditem, CONFIG.cp[feeditem]['url'], CONFIG.cp[feeditem]['sender'])
-        feed.parse_feed()
+        feed = Feed(feeditem)
         feeds.append(feed)
-        # See if the feed entries have full HTML of the article
-        # Yes, entry['content']['value']
-    imap = IMAPConnection(CONFIG.cp['DEFAULT']['host'],
-                            int(CONFIG.cp['DEFAULT']['port']), 
-                            CONFIG.cp['DEFAULT']['username'], 
-                            CONFIG.cp['DEFAULT']['password'])
-    imap.connect()
+
+    with ThreadPoolExecutor(max_workers=30) as executor:
+        future_data = {executor.submit(feed.parse_feed): feed for feed in feeds}
+
+    for nothing in as_completed(future_data):
+        pass
+
+    with ThreadPoolExecutor(max_workers=30) as executor:
+        for feed in feeds:
+            future_data = {executor.submit(feed.imap.store_entry, feed, entry): entry for entry in feed.contents['entries']}
+        #future_data = {executor.submit(imap.store_entries, feed): feed for feed in feeds}
+    for nothing in as_completed(future_data):
+        pass
     for feed in feeds:
-        for entry in feed.contents['entries']:
-            imap.store_entry(feed, entry, 
-                             CONFIG.cp[feed.name]['folder'])
         feed.new_to_cache()

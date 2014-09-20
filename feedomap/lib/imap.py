@@ -16,19 +16,22 @@ class IMAPConnection(object):
     
     def connect(self):
         if self.port == 993:
-            self.connection = imaplib.IMAP4_SSL(host=self.host, port=self.port)
+            connection = imaplib.IMAP4_SSL(host=self.host, port=self.port)
         else:
-            self.connection = imaplib.IMAP4(host=self.host, port=self.port)
+            connection = imaplib.IMAP4(host=self.host, port=self.port)
             if self.port == 143:
-                self.connection.starttls()
-        self.connection.login(self.username, self.password)
+                connection.starttls()
+        connection.login(self.username, self.password)
+        return connection
     
-    def store_entry(self, feed, entry, folder):
+    def store_entry(self, feed, entry):
+        connection = self.connect()
         parsed_date = time.mktime(entry.published_parsed)
         msg = craft_message(self.username, feed.contents['feed'], entry, 
                             feed.sender)
-        self.connection.create(folder)
-        self.connection.append(folder, '', 
-                               #imaplib.Time2Internaldate(parsed_date),
-                               parsed_date,
-                               str.encode(str(msg), 'utf-8'))
+        connection.create(feed.folder)
+        connection.append(feed.folder, '', 
+                            #imaplib.Time2Internaldate(parsed_date),
+                            parsed_date,
+                            str.encode(str(msg), 'utf-8'))
+        connection.close()

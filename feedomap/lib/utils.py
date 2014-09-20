@@ -15,7 +15,7 @@ def craft_message(username, feed, entry, sender):
     #                                minute=pd.tm_min, second=pd.tm_sec)
     parsed_date = time.mktime(entry.published_parsed)
     try:
-        body = entry[0]['content']['value']
+        body = entry['content'][0]['value']
     except KeyError:
         body = entry['summary']
     msg = MIMEMultipart('alternative')
@@ -23,8 +23,7 @@ def craft_message(username, feed, entry, sender):
     msg['From'] = sender
     msg['To'] = username
     msg['Date'] = entry.published
-    try:
-        hheader = '<table border="1" width="100%" cellpadding="0" ' + \
+    hheader = '<table border="1" width="100%" cellpadding="0" ' + \
             'cellspacing="0" borderspacing="0"><tr><td>' + \
             '<table width="100%" bgcolor="#EDEDED" cellpadding="4" ' + \
             'cellspacing="2"><tr><td align="right"><b>Feed:</b></td> ' + \
@@ -33,9 +32,6 @@ def craft_message(username, feed, entry, sender):
             '<td align="right"><b>Item:</b></td><td width="100%">' + \
             '<a href="' + entry.link + '"><b>' + entry.title + '</b>' + \
             '</a></td></tr></table></td></tr></table><br/>'
-    except:
-        import pdb
-        pdb.set_trace()
     hfooter = '<hr width="100%"/><table width="100%" cellpadding="0" ' + \
         'cellspacing="0"><tr><td align="right"><font color="#ababab">' + \
         'Date:</font>&nbsp</td><td><font color="#ababab">' + \
