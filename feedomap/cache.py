@@ -1,7 +1,7 @@
 import shelve
 import os
 
-from feedomap.lib.constants import CACHE_DIR
+from feedomap.constants import CACHE_DIR
 
 class FeedCache(object):
     def __init__(self):
@@ -20,4 +20,5 @@ class FeedCache(object):
     def set_feed_cache(self, name, entries):
         shelf = shelve.open(CACHE_DIR + name + '.dbm')
         shelf['entries'] = entries
+        #shelf.sync()
         shelf.close()

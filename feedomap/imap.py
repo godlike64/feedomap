@@ -1,11 +1,11 @@
 import imaplib
-import time
+#import time
 import logging
 import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from feedomap.lib.utils import striphtml, craft_message
+from feedomap.utils import striphtml, craft_message
 
 class IMAPConnection(object):
     
@@ -30,19 +30,16 @@ class IMAPConnection(object):
     
     def store_entry(self, feed, entry):
         connection = self.connect()
-        try:
-            parsed_date = time.mktime(entry.published_parsed)
-        except AttributeError:
-            parsed_date = time.mktime(entry.updated_parsed)
         msg = craft_message(self.username, feed.contents['feed'], entry, 
-                            feed.sender, parsed_date)
+                            feed.sender)
         connection.create('\"' + feed.folder + '\"')
         connection.subscribe('\"' + feed.folder + '\"')
         connection.select('\"' + feed.folder + '\"')
         connection.append('\"' + feed.folder + '\"', '', 
                             #imaplib.Time2Internaldate(parsed_date),
-                            parsed_date,
+                            entry.time_published,
                             str.encode(str(msg), 'utf-8'))
         self.logger.debug('Stored entry "' + entry.title + '" at <' + 
                      self.username + '> in ' + feed.folder + '.')
         connection.close()
+        return entry

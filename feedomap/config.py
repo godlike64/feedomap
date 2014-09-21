@@ -3,7 +3,7 @@ import configparser
 import sys
 from collections import OrderedDict
 
-from feedomap.lib.constants import CONFIG_DIR, CONFIG_FILE
+from feedomap.constants import CONFIG_DIR, CONFIG_FILE
 
 class Config(object):
     

@@ -1,5 +1,5 @@
 import re
-import time
+#import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -7,19 +7,13 @@ def striphtml(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
 
-def craft_message(username, feed, entry, sender, parsed_date):
-    try:
-        body = entry['content'][0]['value']
-    except KeyError:
-        body = entry['summary']
+def craft_message(username, feed, entry, sender):
+    body = entry.summary
     msg = MIMEMultipart('alternative')
     msg['Subject'] = entry.title
     msg['From'] = sender
     msg['To'] = username
-    try:
-        msg['Date'] = time.asctime(entry.published_parsed)
-    except AttributeError:
-        msg['Date'] = time.asctime(entry.updated_parsed)
+    msg['Date'] = entry.date_published
     hheader = '<table border="1" width="100%" cellpadding="0" ' + \
             'cellspacing="0" borderspacing="0"><tr><td>' + \
             '<table width="100%" bgcolor="#EDEDED" cellpadding="4" ' + \

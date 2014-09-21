@@ -1,8 +1,9 @@
 import feedparser
 import logging
+import time
 
-from feedomap.lib import CACHE, CONFIG
-from feedomap.lib.imap import IMAPConnection
+from feedomap import CACHE, CONFIG
+from feedomap.imap import IMAPConnection
 
 feedparser.PREFERRED_XML_PARSERS.remove('drv_libxml2')
 
@@ -34,10 +35,11 @@ class Feed(object):
         new_entries = []
         for item in contents.entries:
             if item not in self.cached_entries:
-                new_entries.append(item)
-        self.logger.info(self.name + ': found ' + str(len(contents.entries)) + ' items, ' +
-                     str(len(new_entries)) + ' new.')
-        contents['entries'] = new_entries
+                new_entry = FeedEntry(item)
+                new_entries.append(new_entry)
+        self.logger.info(self.name + ': found ' + str(len(contents.entries)) + 
+                         ' items, ' + str(len(new_entries)) + ' new.')
+        self.entries = new_entries
         self.contents = contents
         return self
     
@@ -47,3 +49,22 @@ class Feed(object):
         CACHE.set_feed_cache(self.name, self.cached_entries)
         self.logger.info('Saved ' + str(len(self.contents.entries)) + 
                           ' items from "' + self.name + '" to cache.')
+
+
+class FeedEntry(object):
+    
+    def __init__(self, entry):
+        self.title = entry['title']
+        self.link = entry['link']
+        try:
+            self.time_published = time.mktime(entry['published_parsed'])
+        except KeyError:
+            self.time_published = time.mktime(entry['updated_parsed'])
+        try:
+            self.date_published = time.asctime(entry['published_parsed'])
+        except KeyError:
+            self.date_published = time.asctime(entry['updated_parsed'])
+        try:
+            self.summary = entry['content'][0]['value']
+        except KeyError:
+            self.summary = entry['summary']
