@@ -4,6 +4,7 @@ import time
 
 from feedomap import CACHE, CONFIG
 from feedomap.imap import IMAPConnection
+from feedomap.utils import striphtml
 
 feedparser.PREFERRED_XML_PARSERS.remove('drv_libxml2')
 
@@ -71,9 +72,10 @@ class FeedEntry(object):
                 self.summary = entry['summary']
             except KeyError:
                 self.summary = ''
+        self.plain_summary = striphtml(self.summary)
     
     def __str__(self):
         return str(self.__dict__)
 
     def __eq__(self, other): 
-        return self.__dict__ == other.__dict__
+        return self.title == other.title and self.link == other.link and self.plain_summary == other.plain_summary
