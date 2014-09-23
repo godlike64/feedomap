@@ -28,16 +28,17 @@ class Config(object):
         self.cp['Example Feed'] = OrderedDict()
         self.cp['Example Feed']['url'] = 'http://example2.com/rss.xml'
         with open(CONFIG_FILE, 'w') as configfile:
-            configfile.write('# This is Feedomap\'s default configuration ' + \
-                'file. It is an example config \n' + \
-                '# automatically generated due to no config file found.\n' + \
-                '# Use this file as a guidance to write your definitive ' + \
+            configfile.write('# This is Feedomap\'s default configuration ' +
+                'file. It is an example config \n' +
+                '# automatically generated due to no config file found.\n' +
+                '# Use this file as a guidance to write your definitive ' +
                 'config.\n# The values shown here will likely not work.\n\n')
-            configfile.write('# Values from [DEFAULT] apply to all sections ' + \
+            configfile.write('# Values from [DEFAULT] apply to all sections ' +
                 'unless specifically overridden for each feed.\n')
-            configfile.write('# Folder should follow the IMAP syntax, using ' + \
-                '\'.\'. It will be automatically created,\n' + \
-                '# although intermediary folders won\'t.\n\n')
+            configfile.write('# Folder should follow the IMAP syntax, using ' +
+                '\'.\' or \'/\' as separator, depending on the IMAP\n' +
+                '# server configuration. It will be automatically created, ' +
+                'although intermediary folders won\'t.\n\n')
             self.cp.write(configfile)
             print('Writing default config file at ' + CONFIG_FILE)
             sys.exit(1)
