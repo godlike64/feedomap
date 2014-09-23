@@ -15,7 +15,7 @@ class Feed(object):
         if CONFIG.cp[self.name]['use_feed_name_as_folder'] == 'no':
             self.folder = CONFIG.cp[self.name]['folder']
         else:
-            self.folder = CONFIG.cp['DEFAULT']['folder'] + '.' + self.name
+            self.folder = CONFIG.cp[self.name]['folder'] + '.' + self.name
         if CONFIG.cp[self.name]['use_feed_folder_as_sender'] == 'yes':
             sender = self.name.replace(' ', '').lower()
             self.sender = sender + '@' + CONFIG.cp[self.name]['host']
@@ -34,8 +34,8 @@ class Feed(object):
         contents = feedparser.parse(self.feedurl)
         new_entries = []
         for item in contents.entries:
-            if item not in self.cached_entries:
-                new_entry = FeedEntry(item)
+            new_entry = FeedEntry(item)
+            if new_entry not in self.cached_entries:
                 new_entries.append(new_entry)
         self.logger.info(self.name + ': found ' + str(len(contents.entries)) + 
                          ' items, ' + str(len(new_entries)) + ' new.')
@@ -44,10 +44,10 @@ class Feed(object):
         return self
     
     def new_to_cache(self):
-        for entry in self.contents.entries:
+        for entry in self.entries:
             self.cached_entries.append(entry)
         CACHE.set_feed_cache(self.name, self.cached_entries)
-        self.logger.info('Saved ' + str(len(self.contents.entries)) + 
+        self.logger.info('Saved ' + str(len(self.entries)) + 
                           ' items from "' + self.name + '" to cache.')
 
 
@@ -67,4 +67,7 @@ class FeedEntry(object):
         try:
             self.summary = entry['content'][0]['value']
         except KeyError:
-            self.summary = entry['summary']
+            try:
+                self.summary = entry['summary']
+            except KeyError:
+                self.summary = ''
