@@ -35,7 +35,7 @@ class Feed(object):
         contents = feedparser.parse(self.feedurl)
         new_entries = []
         for item in contents.entries:
-            new_entry = FeedEntry(item)
+            new_entry = FeedEntry(item, self.name)
             if new_entry not in self.cached_entries:
                 new_entries.append(new_entry)
         self.logger.info(self.name + ': found ' + str(len(contents.entries)) + 
@@ -54,7 +54,7 @@ class Feed(object):
 
 class FeedEntry(object):
     
-    def __init__(self, entry):
+    def __init__(self, entry, feedname):
         self.title = entry['title']
         self.link = entry['link']
         try:
@@ -72,6 +72,10 @@ class FeedEntry(object):
                 self.summary = entry['summary']
             except KeyError:
                 self.summary = ''
+        try:
+            self.author = entry['author']
+        except:
+            self.author = feedname
     
     def __str__(self):
         return str(self.__dict__)

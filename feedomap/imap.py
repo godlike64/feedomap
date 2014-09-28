@@ -31,7 +31,7 @@ class IMAPConnection(object):
     def store_entry(self, feed, entry):
         connection = self.connect()
         msg = craft_message(self.username, feed.contents['feed'], entry, 
-                            feed.sender)
+                            entry.author + '<' + feed.sender + '>')
         connection.create('\"' + feed.folder + '\"')
         connection.subscribe('\"' + feed.folder + '\"')
         connection.select('\"' + feed.folder + '\"')
