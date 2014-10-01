@@ -82,4 +82,4 @@ class FeedEntry(object):
 
     def __eq__(self, other): 
         return self.title == other.title and self.link == other.link and \
-            striphtml(self.summary) == striphtml(other.summary)
+            self.date_published == other.date_published
