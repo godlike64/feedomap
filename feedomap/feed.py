@@ -81,5 +81,5 @@ class FeedEntry(object):
         return str(self.__dict__)
 
     def __eq__(self, other): 
-        return self.title == other.title and self.link == other.link and \
+        return self.title == other.title and self.author == other.author and \
             self.date_published == other.date_published
