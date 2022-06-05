@@ -8,7 +8,7 @@ Usage
 ~~~
 usage: feedomap [-h] [-l level] [-p N]
 
-feedomap v0.2: stores your feeds on your IMAP.
+feedomap v0.6: stores your feeds on your IMAP.
 
 optional arguments:
   -h, --help            show this help message and exit
