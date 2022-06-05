@@ -4,6 +4,8 @@ import time
 import ssl
 from operator import attrgetter
 import datetime
+import requests
+from io import BytesIO
 
 from feedomap import CACHE, CONFIG
 from feedomap.imap import IMAPConnection
@@ -35,13 +37,22 @@ class Feed(object):
         self.logger = logging.getLogger(__name__)
 
     def parse_feed(self):
+        self.entries = []
+        self.contents = []
         self.logger.info("Parsing feed " + self.name + ".")
         cached_entries = CACHE.get_feed_cache(self.name)
         if "unverified_ssl" in CONFIG.cp[self.name]:
             if CONFIG.cp.getboolean(self.name, "unverified_ssl"):
                 if hasattr(ssl, "_create_unverified_context"):
                     ssl._create_default_https_context = ssl._create_unverified_context
-        contents = feedparser.parse(self.feedurl)
+        verify = not CONFIG.cp[self.name].getboolean("unverified_ssl", False)
+        try:
+            response = requests.get(self.feedurl, timeout=30.0, verify=verify)
+        except requests.ReadTimeout:
+            self.logger.error(f"Timeout when reading {self.name} feed.")
+            return False
+        raw_content = BytesIO(response.content)
+        contents = feedparser.parse(raw_content)
         parsed_entries = [FeedEntry(entry, self.name) for entry in contents.entries]
         self.cached_entries = [
             entry for entry in cached_entries if entry in parsed_entries

@@ -28,9 +28,9 @@ if __name__ == "__main__":
         metavar="level",
         type=loglevel_validator,
         default="INFO",
-        help=f"Define {PROGNAME}'s log level. Can be any of"
-        + " Python's standard log levels: CRITICAL, ERROR, "
-        + "WARNING, INFO, DEBUG.",
+        help=f"Define {PROGNAME}'s log level. Can be any of "
+        "Python's standard log levels: CRITICAL, ERROR, "
+        "WARNING, INFO, DEBUG.",
     )
     parser.add_argument(
         "-p",
@@ -40,5 +40,12 @@ if __name__ == "__main__":
         default=0,
         help="Use N threads when fetching feeds/" + "storing items.",
     )
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        help="Fetch feeds but do not load them into the IMAP server "
+        "nor store them in the cache. Useful for debugging.",
+    )
     args = parser.parse_args()
-    run(log_level=args.log_level, parallel=args.parallel)
+    run(args)

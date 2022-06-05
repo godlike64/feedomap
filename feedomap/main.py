@@ -12,13 +12,17 @@ def parallel_parse(feed):
     return feed.parse_feed()
 
 
-def run(log_level="INFO", parallel=0):
+def run(args):
     logformat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    logging.basicConfig(level=log_level, format=logformat)
+    logging.basicConfig(level=args.log_level, format=logformat)
     logger = logging.getLogger(__name__)
     print(PROGNAME + " v" + VERSION + " started.")
+    if args.dry_run:
+        logger.warning(
+            f"Running in dry-run mode. Feeds will be parsed but no action will be taken. Ignore any 'Storing' messages."
+        )
     feeds = []
-    if parallel <= 1:
+    if args.parallel <= 1:
         for feeditem in CONFIG.cp.sections():
             feed = Feed(feeditem)
             feed.parse_feed()
@@ -30,17 +34,18 @@ def run(log_level="INFO", parallel=0):
                     f"from {feed.name} "
                     f"on {feed.imap.host}."
                 )
-                for entry in feed.entries:
-                    feed.imap.store_entry(feed, entry)
-                feed.new_to_cache()
+                if not args.dry_run:
+                    for entry in feed.entries:
+                        feed.imap.store_entry(feed, entry)
+                    feed.new_to_cache()
     else:
         logger.warning(
-            f"Using {parallel} connections for fetching and storing."
+            f"Using {args.parallel} connections for fetching and storing."
             f"This can cause issues on some some IMAP servers."
             f"Use at your own risk!"
         )
         future_data = []
-        with ThreadPoolExecutor(max_workers=parallel) as executor:
+        with ThreadPoolExecutor(max_workers=args.parallel) as executor:
             for feeditem in CONFIG.cp.sections():
                 feed = Feed(feeditem)
                 feeds.append(feed)
@@ -50,10 +55,16 @@ def run(log_level="INFO", parallel=0):
         for feed in as_completed(future_data):
             pass
         for feed in feeds:
-            with ThreadPoolExecutor(max_workers=parallel) as executor:
-                future_data = {
-                    executor.submit(feed.imap.store_entry, feed, entry): entry
-                    for entry in feed.entries
-                }
-            for nothing in as_completed(future_data):
-                pass
+            logger.info(
+                f"Storing {len(feed.entries)} items "
+                f"from {feed.name} "
+                f"on {feed.imap.host}."
+            )
+            if not args.dry_run:
+                with ThreadPoolExecutor(max_workers=args.parallel) as executor:
+                    future_data = {
+                        executor.submit(feed.imap.store_entry, feed, entry): entry
+                        for entry in feed.entries
+                    }
+                for nothing in as_completed(future_data):
+                    pass
