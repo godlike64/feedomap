@@ -18,11 +18,11 @@ class Feed(object):
     def __init__(self, name):
         self.name = name
         self.feedurl = CONFIG.cp[self.name]["url"]
-        if CONFIG.cp[self.name]["use_feed_name_as_folder"] == "no":
+        if CONFIG.cp.getboolean(self.name, "use_feed_name_as_folder"):
             self.folder = CONFIG.cp[self.name]["folder"]
         else:
             self.folder = CONFIG.cp[self.name]["folder"] + "." + self.name
-        if CONFIG.cp[self.name]["use_feed_folder_as_sender"] == "yes":
+        if CONFIG.cp.getboolean(self.name, "use_feed_folder_as_sender"):
             sender = self.name.replace(" ", "").lower()
             self.sender = sender + "@" + CONFIG.cp[self.name]["host"]
         else:
@@ -41,10 +41,6 @@ class Feed(object):
         self.contents = []
         self.logger.info("Parsing feed " + self.name + ".")
         cached_entries = CACHE.get_feed_cache(self.name)
-        if "unverified_ssl" in CONFIG.cp[self.name]:
-            if CONFIG.cp.getboolean(self.name, "unverified_ssl"):
-                if hasattr(ssl, "_create_unverified_context"):
-                    ssl._create_default_https_context = ssl._create_unverified_context
         verify = not CONFIG.cp[self.name].getboolean("unverified_ssl", False)
         try:
             response = requests.get(self.feedurl, timeout=30.0, verify=verify)

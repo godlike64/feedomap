@@ -8,10 +8,6 @@ from feedomap import CONFIG
 from feedomap.constants import PROGNAME, VERSION
 
 
-def parallel_parse(feed):
-    return feed.parse_feed()
-
-
 def run(args):
     logformat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(level=args.log_level, format=logformat)
@@ -19,7 +15,8 @@ def run(args):
     print(PROGNAME + " v" + VERSION + " started.")
     if args.dry_run:
         logger.warning(
-            f"Running in dry-run mode. Feeds will be parsed but no action will be taken. Ignore any 'Storing' messages."
+            f"Running in dry-run mode. Feeds will be parsed but "
+            "no action will be taken. Ignore any 'Storing' messages."
         )
     feeds = []
     if args.parallel <= 1:
@@ -49,9 +46,7 @@ def run(args):
             for feeditem in CONFIG.cp.sections():
                 feed = Feed(feeditem)
                 feeds.append(feed)
-            future_data = {
-                executor.submit(parallel_parse, feed): feed for feed in feeds
-            }
+            future_data = {executor.submit(feed.parse_feed): feed for feed in feeds}
         for feed in as_completed(future_data):
             pass
         for feed in feeds:
