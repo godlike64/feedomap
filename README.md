@@ -43,6 +43,7 @@ folder = INBOX.Feeds
 sender = feeds@example.com
 use_feed_name_as_folder = no
 use_feed_folder_as_sender = no
+unverified_ssl = no
 
 [Example Feed]
 url = http://example2.com/rss.xml
@@ -57,3 +58,7 @@ except for the following (can be enabled by specifying 'yes'):
 * use_feed_folder_as_sender: when enabled, the sender will be the feed's name
   (adjusted for compliance with SMTP standards, e.g. no spaces), lowercased, and
   the hostname (after the @) will be the one defined by the host parameter.
+* unverified_ssl: when enabled, feedomap will attempt to fetch the feed(s) 
+  without SSL verification of the certificate. This is useful if a specific feed 
+  URL is hosted on a webserver with a faulty certificate; this is also a security
+  risk, so handle with care.

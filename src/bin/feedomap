@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+import sys
+import os
+import argparse
+
+sys.path.insert(1, os.getcwd())
+
+from feedomap.main import main
+
+
+def loglevel_validator(v):
+    if v.upper() not in ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]:
+        raise argparse.ArgumentTypeError(
+            "Log level must be a valid Python " + "log level. See -h for details."
+        )
+    else:
+        return v.upper()
+
+
+if __name__ == "__main__":
+    main()
