@@ -19,9 +19,9 @@ class Feed(object):
         self.name = name
         self.feedurl = CONFIG.cp[self.name]["url"]
         if CONFIG.cp.getboolean(self.name, "use_feed_name_as_folder"):
-            self.folder = CONFIG.cp[self.name]["folder"]
-        else:
             self.folder = CONFIG.cp[self.name]["folder"] + "." + self.name
+        else:
+            self.folder = CONFIG.cp[self.name]["folder"]
         if CONFIG.cp.getboolean(self.name, "use_feed_folder_as_sender"):
             sender = self.name.replace(" ", "").lower()
             self.sender = sender + "@" + CONFIG.cp[self.name]["host"]
